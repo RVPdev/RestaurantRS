@@ -2,6 +2,7 @@
  * List handler for reservation resources
  */
 const service = require("./reservations.service");
+const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
 
 // requireporperties
 const hasProperties = require("../errors/hasProperties");
@@ -16,24 +17,20 @@ const hasRequiredProperties = hasProperties(
 
 // list function form controller
 async function list(req, res, next) {
-  service
-    .list()
-    .then((data) => res.json({ data }))
-    .catch(next);
+  const data = await service.list();
+  res.json({ data });
 }
 
 // validator for the reservation ID
 async function reservationExists(req, res, next) {
-  service
-    .read(req.params.reservationId)
-    .then((reservation) => {
-      if (reservation) {
-        res.locals.reservation = reservation;
-        return next();
-      }
-      next({ status: 404, message: `Reservation cannot be found.` });
-    })
-    .catch(next);
+  const reservation = await service.read(req.params.reservationId);
+
+  if (reservation) {
+    res.locals.reservation = reservation;
+    return next();
+  }
+
+  next({ status: 404, message: `Reservation cannot be found.` });
 }
 
 // read function to display reservation by ID
@@ -71,10 +68,9 @@ function hasValidProperties(req, res, next) {
 
 // create a new reservation
 async function create(req, res, next) {
-  service
-    .create(req.body.data)
-    .then((data) => res.status(201).json({ data }))
-    .catch(next);
+  const data = await service.create(req.body.data);
+
+  res.status(201).json({ data });
 }
 
 // update reervation
@@ -84,30 +80,27 @@ async function update(req, res, next) {
     reservation_id: res.locals.reservation.reservation_id,
   };
 
-  service
-    .update(reservation)
-    .then((data) => res.json({ data }))
-    .catch(next);
+  const data = await service.update(reservation);
+  res.json({ data });
 }
 
 // destroy controller
 
 async function destroy(req, res, next) {
-  service
-    .delete(res.locals.reservation.reservationId)
-    .then(() => res.sendStatus(204))
-    .catch(next);
+  const { reservation } = res.locals;
+  await service.delete(reservation.reservation_id);
+  res.sendStatus(204);
 }
 
 module.exports = {
-  list,
-  read: [reservationExists, read],
-  create: [hasValidProperties, hasRequiredProperties, create],
+  list: asyncErrorBoundary(list),
+  read: [asyncErrorBoundary(reservationExists), read],
+  create: [hasValidProperties, hasRequiredProperties, asyncErrorBoundary(create)],
   update: [
-    reservationExists,
+    asyncErrorBoundary(reservationExists),
     hasValidProperties,
     hasRequiredProperties,
-    update,
+    asyncErrorBoundary(update),
   ],
-  delete: [reservationExists, destroy],
+  delete: [asyncErrorBoundary(reservationExists), asyncErrorBoundary(destroy)],
 };
