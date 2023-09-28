@@ -357,6 +357,7 @@ describe("US-01 - Create and list reservations", () => {
           people: 2,
         })
       );
+      // console.log(response);
       expect(response.status).toBe(201);
     });
   });
