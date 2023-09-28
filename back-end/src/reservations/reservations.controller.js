@@ -15,10 +15,17 @@ const hasRequiredProperties = hasProperties(
   "people"
 );
 
-// list function form controller
+// list function form controller and query selector
 async function list(req, res, next) {
+  const { date } = req.query;
+
+  if (date) {
+    const data = await service.readDate(date);
+    res.json({ data: data });
+  }
+
   const data = await service.list();
-  res.json({ data });
+  res.json({ data: data });
 }
 
 // validator for the reservation ID
@@ -30,7 +37,10 @@ async function reservationExists(req, res, next) {
     return next();
   }
 
-  next({ status: 404, message: `Reservation cannot be found.` });
+  next({
+    status: 404,
+    message: `Reservation ${req.params.reservationId} cannot be found.`,
+  });
 }
 
 // read function to display reservation by ID
@@ -40,7 +50,6 @@ async function read(req, res) {
 }
 
 // property validator
-
 const VALID_PROPERTIES = [
   "first_name",
   "last_name",
@@ -63,6 +72,40 @@ function hasValidProperties(req, res, next) {
       message: `Invalid field(s): ${invalidFields.join(", ")}`,
     });
   }
+
+  if (typeof data.people !== "number" || data.people <= 0) {
+    return next({
+      status: 400,
+      message: "'people' field must be a number greater than 0",
+    });
+  }
+
+  next();
+}
+
+function validateDateTime(req, res, next) {
+  const { data = {} } = req.body;
+
+  // Validate date and time
+  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+  const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+
+  if (!dateRegex.test(data.reservation_date)) {
+    return next({
+      status: 400,
+      message:
+        "'reservation_date' field must be a valid date in YYYY-MM-DD format",
+    });
+  }
+
+  if (!timeRegex.test(data.reservation_time)) {
+    return next({
+      status: 400,
+      message:
+        "'reservation_time' field must be a valid time in HH:mm:ss format",
+    });
+  }
+
   next();
 }
 
@@ -98,12 +141,14 @@ module.exports = {
   create: [
     hasValidProperties,
     hasRequiredProperties,
+    validateDateTime,
     asyncErrorBoundary(create),
   ],
   update: [
     asyncErrorBoundary(reservationExists),
     hasValidProperties,
     hasRequiredProperties,
+    validateDateTime,
     asyncErrorBoundary(update),
   ],
   delete: [asyncErrorBoundary(reservationExists), asyncErrorBoundary(destroy)],

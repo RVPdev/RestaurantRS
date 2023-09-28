@@ -13,27 +13,32 @@ function read(reservationId) {
     .first();
 }
 
-// create a new reservation
-function create(reservation) {
-    return knex("reservations")
-        .insert(reservation)
-        .returning("*")
-        .then((createdReservation) => createdReservation[0]);
+function readDate(reservationDate) {
+  return knex("reservations")
+    .select("*")
+    .where({ reservation_date: reservationDate })
+    .orderBy('reservation_time', "asc");
 }
 
+// create a new reservation
+function create(reservation) {
+  return knex("reservations")
+    .insert(reservation)
+    .returning("*")
+    .then((createdReservation) => createdReservation[0]);
+}
 
 // updates an existing reservation
 function update(reservation) {
- return knex("reservations")
+  return knex("reservations")
     .select("*")
-    .where({reservation_id: reservation.reservation_id})
-    .update(reservation, '*');
+    .where({ reservation_id: reservation.reservation_id })
+    .update(reservation, "*");
 }
-
 
 // destroy an specific reservation
 function destroy(reservationId) {
-    return knex("reservations").where({reservationId}).del();
+  return knex("reservations").where({ reservationId }).del();
 }
 
 module.exports = {
@@ -42,4 +47,5 @@ module.exports = {
   create,
   update,
   delete: destroy,
+  readDate,
 };
