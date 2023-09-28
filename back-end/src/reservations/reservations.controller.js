@@ -19,13 +19,18 @@ const hasRequiredProperties = hasProperties(
 async function list(req, res, next) {
   const { date } = req.query;
 
+  console.log(date);
+
   if (date) {
+    console.log(date, "``````````````````inside if");
     const data = await service.readDate(date);
+    console.log(data)
+    res.json({ data: data });
+  } else {
+    console.log(date,"~~~~~~~~~~~~~~~~~~~~~ inside else");
+    const data = await service.list();
     res.json({ data: data });
   }
-
-  const data = await service.list();
-  res.json({ data: data });
 }
 
 // validator for the reservation ID
