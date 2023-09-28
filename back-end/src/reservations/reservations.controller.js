@@ -53,7 +53,7 @@ const VALID_PROPERTIES = [
 function hasValidProperties(req, res, next) {
   const { data = {} } = req.body;
 
-  const invalidFields = Objact.keys(data).filter(
+  const invalidFields = Object.keys(data).filter(
     (field) => !VALID_PROPERTIES.includes(field)
   );
 
@@ -95,7 +95,11 @@ async function destroy(req, res, next) {
 module.exports = {
   list: asyncErrorBoundary(list),
   read: [asyncErrorBoundary(reservationExists), read],
-  create: [hasValidProperties, hasRequiredProperties, asyncErrorBoundary(create)],
+  create: [
+    hasValidProperties,
+    hasRequiredProperties,
+    asyncErrorBoundary(create),
+  ],
   update: [
     asyncErrorBoundary(reservationExists),
     hasValidProperties,
