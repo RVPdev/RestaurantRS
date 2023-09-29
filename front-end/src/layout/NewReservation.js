@@ -3,8 +3,10 @@ import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import { createReservation } from "../utils/api";
 
 function NewReservation() {
+  // Initializing useHistory hook for navigating routes
   const history = useHistory();
 
+  // Initializing the form state object
   const initialFormState = {
     first_name: "",
     last_name: "",
@@ -14,30 +16,37 @@ function NewReservation() {
     people: "",
   };
 
-  const [formData, setFromData] = useState({ ...initialFormState });
+  // Initializing state for form data and setting it to initialFormState object
+  const [formData, setFormData] = useState({ ...initialFormState });
 
+  // Function to handle changes in input fields and updating the state accordingly
   const handleChange = (event) => {
-    setFromData({ ...formData, [event.target.name]: event.target.value });
-    // console.log(formData, "`````````````");
+    // Updating formData state with new input values
+    setFormData({ ...formData, [event.target.name]: event.target.value });
   };
 
+  // Function to handle form submission
   const handleSubmit = async (event) => {
+    // Preventing default form submission behavior
     event.preventDefault();
 
-    // console.log(formData, "~~~~~~~~~~~~~~~~~");
-
-    const reservationFormated = {
+    // Formatting reservation data before sending
+    const reservationFormatted = {
       ...formData,
       people: Number(formData.people),
     };
 
-    await createReservation(reservationFormated);
+    // Sending the formatted reservation data to create a reservation
+    await createReservation(reservationFormatted);
 
-    setFromData(initialFormState);
+    // Resetting the form to initial state after submission
+    setFormData(initialFormState);
 
+    // Navigating to the dashboard after form submission
     history.push("/dashboard");
   };
 
+  // Rendering the form
   return (
     <form onSubmit={handleSubmit} className="row g-3 mt-2">
       <div className="col-md-6">
@@ -101,7 +110,9 @@ function NewReservation() {
       </div>
 
       <div class="col-md-6">
-        <label htmlFor="reservation_date" className="form-label">Date of Reservation</label>
+        <label htmlFor="reservation_date" className="form-label">
+          Date of Reservation
+        </label>
         <input
           id="reservation_date"
           name="reservation_date"
@@ -114,7 +125,9 @@ function NewReservation() {
       </div>
 
       <div class="col-md-6">
-        <label htmlFor="reservation_time" className="form-label">Time of Reservation</label>
+        <label htmlFor="reservation_time" className="form-label">
+          Time of Reservation
+        </label>
         <input
           id="reservation_time"
           name="reservation_time"
@@ -126,8 +139,14 @@ function NewReservation() {
         />
       </div>
 
-      <button type="submit" className="btn btn-secondary">Submit</button>
-      <button type="button" className="btn btn-danger" onClick={() => history.goBack()}>
+      <button type="submit" className="btn btn-secondary">
+        Submit
+      </button>
+      <button
+        type="button"
+        className="btn btn-danger"
+        onClick={() => history.goBack()}
+      >
         Cancel
       </button>
     </form>
