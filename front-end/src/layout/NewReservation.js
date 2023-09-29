@@ -43,7 +43,7 @@ function NewReservation() {
     setFormData(initialFormState);
 
     // Navigating to the dashboard after form submission
-    history.push("/dashboard");
+    history.push(`/dashboard?date=${formData.reservation_date}`);
   };
 
   // Rendering the form
