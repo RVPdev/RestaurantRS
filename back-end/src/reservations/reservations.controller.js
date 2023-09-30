@@ -19,8 +19,6 @@ const hasRequiredProperties = hasProperties(
 async function list(req, res, next) {
   const { date } = req.query;
 
-  console.log(date);
-
   if (date) {
     console.log(date, "``````````````````inside if");
     const data = await service.readDate(date);
