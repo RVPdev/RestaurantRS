@@ -20,12 +20,12 @@ async function list(req, res, next) {
   const { date } = req.query;
 
   if (date) {
-    console.log(date, "``````````````````inside if");
+    // console.log(date, "``````````````````inside if");
     const data = await service.readDate(date);
     console.log(data);
     res.json({ data: data });
   } else {
-    console.log(date, "~~~~~~~~~~~~~~~~~~~~~ inside else");
+    // console.log(date, "~~~~~~~~~~~~~~~~~~~~~ inside else");
     const data = await service.list();
     res.json({ data: data });
   }
@@ -120,23 +120,49 @@ function validateReservationDate(req, res, next) {
   const reservationDate = new Date(reservation_date);
   const today = new Date();
 
-  console.log(reservationDate, "`````````````````")
-  console.log(reservationDate.getDay(), "~~~~~~~~~~~~~~~~~~~")
+  // console.log(reservationDate, "`````````````````")
+  // console.log(reservationDate.getDay(), "~~~~~~~~~~~~~~~~~~~")
 
 
   // Set the time of today to 00:00:00 to only compare date, not time.
   today.setHours(0, 0, 0, 0);
 
   if (reservationDate.getDay() === 1) { // 1 corresponds to Tuesday in JavaScript Date object
-    return next({ status: 400, message: 'Reservations are not allowed on Tuesdays' });
+    return next({ status: 400, message: 'closed' });
   }
 
   if (reservationDate < today) {
-    return next({ status: 400, message: 'Reservation date cannot be in the past' });
+    return next({ status: 400, message: 'future' });
   }
 
   next();
 }
+
+function validateReservationTime(req, res, next) {
+  const { data: { reservation_date, reservation_time } = {} } = req.body;
+  
+  if (!reservation_time) return next({ status: 400, message: 'Reservation time is required' });
+  
+  const reservationDateTime = new Date(`${reservation_date}T${reservation_time}`);
+  
+  const reservationHour = reservationDateTime.getHours();
+  const reservationMinute = reservationDateTime.getMinutes();
+
+  const reservationTimeInMinutes = reservationHour * 60 + reservationMinute;
+  const openingTimeInMinutes = 10 * 60 + 30; // 10:30 AM
+  const closingTimeInMinutes = 21 * 60 + 30; // 9:30 PM
+
+  if (reservationTimeInMinutes < openingTimeInMinutes) {
+    return next({ status: 400, message: 'Reservations cannot be made before 10:30 AM' });
+  }
+
+  if (reservationTimeInMinutes > closingTimeInMinutes) {
+    return next({ status: 400, message: 'Reservations cannot be made after 9:30 PM' });
+  }
+
+  next();
+}
+
 
 // create a new reservation
 async function create(req, res, next) {
@@ -172,6 +198,7 @@ module.exports = {
     hasRequiredProperties,
     validateDateTime,
     validateReservationDate,
+    validateReservationTime,
     asyncErrorBoundary(create),
   ],
   update: [
@@ -180,6 +207,7 @@ module.exports = {
     hasRequiredProperties,
     validateDateTime,
     validateReservationDate,
+    validateReservationTime,
     asyncErrorBoundary(update),
   ],
   delete: [asyncErrorBoundary(reservationExists), asyncErrorBoundary(destroy)],
