@@ -22,10 +22,10 @@ async function list(req, res, next) {
   if (date) {
     console.log(date, "``````````````````inside if");
     const data = await service.readDate(date);
-    console.log(data)
+    console.log(data);
     res.json({ data: data });
   } else {
-    console.log(date,"~~~~~~~~~~~~~~~~~~~~~ inside else");
+    console.log(date, "~~~~~~~~~~~~~~~~~~~~~ inside else");
     const data = await service.list();
     res.json({ data: data });
   }
@@ -112,6 +112,32 @@ function validateDateTime(req, res, next) {
   next();
 }
 
+function validateReservationDate(req, res, next) {
+  const {data : {reservation_date} = {}} = req.body;
+
+  if (!reservation_date) return next({ status: 400, message: 'Reservation date is required' });
+
+  const reservationDate = new Date(reservation_date);
+  const today = new Date();
+
+  console.log(reservationDate, "`````````````````")
+  console.log(reservationDate.getDay(), "~~~~~~~~~~~~~~~~~~~")
+
+
+  // Set the time of today to 00:00:00 to only compare date, not time.
+  today.setHours(0, 0, 0, 0);
+
+  if (reservationDate.getDay() === 1) { // 2 corresponds to Tuesday in JavaScript Date object
+    return next({ status: 400, message: 'Reservations are not allowed on Tuesdays' });
+  }
+
+  if (reservationDate < today) {
+    return next({ status: 400, message: 'Reservation date cannot be in the past' });
+  }
+
+  next();
+}
+
 // create a new reservation
 async function create(req, res, next) {
   const data = await service.create(req.body.data);
@@ -145,6 +171,7 @@ module.exports = {
     hasValidProperties,
     hasRequiredProperties,
     validateDateTime,
+    validateReservationDate,
     asyncErrorBoundary(create),
   ],
   update: [
@@ -152,6 +179,7 @@ module.exports = {
     hasValidProperties,
     hasRequiredProperties,
     validateDateTime,
+    validateReservationDate,
     asyncErrorBoundary(update),
   ],
   delete: [asyncErrorBoundary(reservationExists), asyncErrorBoundary(destroy)],
