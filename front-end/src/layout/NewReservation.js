@@ -109,7 +109,7 @@ function NewReservation() {
         />
       </div>
 
-      <div class="col-md-6">
+      <div className="col-md-6">
         <label htmlFor="reservation_date" className="form-label">
           Date of Reservation
         </label>
@@ -124,7 +124,7 @@ function NewReservation() {
         />
       </div>
 
-      <div class="col-md-6">
+      <div className="col-md-6">
         <label htmlFor="reservation_time" className="form-label">
           Time of Reservation
         </label>
