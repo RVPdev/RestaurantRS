@@ -127,7 +127,7 @@ function validateReservationDate(req, res, next) {
   // Set the time of today to 00:00:00 to only compare date, not time.
   today.setHours(0, 0, 0, 0);
 
-  if (reservationDate.getDay() === 1) { // 2 corresponds to Tuesday in JavaScript Date object
+  if (reservationDate.getDay() === 1) { // 1 corresponds to Tuesday in JavaScript Date object
     return next({ status: 400, message: 'Reservations are not allowed on Tuesdays' });
   }
 
