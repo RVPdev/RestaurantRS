@@ -300,6 +300,7 @@ so that I know which tables are occupied and free.
 - if the table capacity is less than the number of people in the reservation, return 400 with an error message.
 - if the table is occupied, return 400 with an error message.
 
+
 > **Hint** Work through the acceptance criteria in the order listed, step-by-step. A different order may be more challenging.
 
 > **Hint** Seed the `tables` table in a similar way as it's done with the `reservations` table.
