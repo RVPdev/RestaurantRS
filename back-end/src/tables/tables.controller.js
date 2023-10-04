@@ -1,16 +1,13 @@
 const service = require("./tables.service");
+const reservationService = require("../reservations/reservations.service");
 const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
 
 const hasProperties = require("../errors/hasProperties");
-const hasRequiredProperties = hasProperties(
-  "table_name",
-  "capacity",
-  "reservation_id"
-);
+const hasRequiredProperties = hasProperties("table_name", "capacity");
 
 async function list(req, res, next) {
   const data = await service.list();
-  res.json({ data: date });
+  res.json({ data: data });
 }
 
 async function tableExists(req, res, next) {
@@ -27,12 +24,28 @@ async function tableExists(req, res, next) {
   });
 }
 
+async function reservationExists(req, res, next) {
+  const reservation = await reservationService.read(
+    req.body.data.reservation_id
+  );
+
+  if (reservation) {
+    res.locals.reservation = reservation;
+    return next();
+  }
+
+  next({
+    status: 404,
+    message: `Reservation ${req.body.data.reservation_id} cannot be found.`,
+  });
+}
+
 async function read(req, res, next) {
   const { table: data } = res.locals;
   res.json({ data });
 }
 
-const VALID_PROPERTIES = ["table_name", "capacity", "reservation_id"];
+const VALID_PROPERTIES = ["table_name", "capacity"];
 
 function hasValidProperties(req, res, next) {
   const { data = {} } = req.body;
@@ -51,6 +64,26 @@ function hasValidProperties(req, res, next) {
   next();
 }
 
+function validateTableProps(req, res, next) {
+  const { data = {} } = req.body;
+
+  if (data.table_name.length < 2) {
+    return next({
+      status: 400,
+      message: "table_name",
+    });
+  }
+
+  if (typeof data.capacity !== "number") {
+    return next({
+      status: 400,
+      message: "capacity",
+    });
+  }
+
+  next();
+}
+
 async function create(req, res, next) {
   const data = await service.create(req.body.data);
 
@@ -58,13 +91,50 @@ async function create(req, res, next) {
 }
 
 async function update(req, res, next) {
-  const tables = {
+  const table = {
     ...req.body.data,
     table_id: res.locals.table.table_id,
   };
 
   const data = await service.update(table);
   res.json({ data });
+}
+
+function tableValidatorU(req, res, next) {
+  const { data = {} } = req.body;
+
+  if (!data.reservation_id) {
+    return next({
+      status: 400,
+      message: "reservation_id is missing",
+    });
+  }
+
+  next();
+}
+
+function isOccupied(req,res,next) {
+
+  if (res.locals.table.reservation_id) {
+    return next({
+      status: 400,
+      message: "reservation_id is occupied",
+    });
+  }
+
+  next();
+}
+
+function valdiateCapacity(req,res,next) {
+
+  if (res.locals.table.capacity < res.locals.reservation.people) {
+    return next({
+      status: 400,
+      message: "capacity error",
+    });
+  }
+
+  next();
 }
 
 async function destroy(req, res, next) {
@@ -79,12 +149,15 @@ module.exports = {
   create: [
     hasValidProperties,
     hasRequiredProperties,
+    validateTableProps,
     asyncErrorBoundary(create),
   ],
   update: [
+    tableValidatorU,
     asyncErrorBoundary(tableExists),
-    hasValidProperties,
-    hasRequiredProperties,
+    asyncErrorBoundary(reservationExists),
+    isOccupied,
+    valdiateCapacity,
     asyncErrorBoundary(update),
   ],
   delete: [asyncErrorBoundary(tableExists), asyncErrorBoundary(destroy)],
