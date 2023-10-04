@@ -1,3 +1,4 @@
+// Importing necessary modules and functions
 const service = require("./tables.service");
 const reservationService = require("../reservations/reservations.service");
 const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
@@ -5,11 +6,13 @@ const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
 const hasProperties = require("../errors/hasProperties");
 const hasRequiredProperties = hasProperties("table_name", "capacity");
 
+// List all tables
 async function list(req, res, next) {
   const data = await service.list();
   res.json({ data: data });
 }
 
+// Middleware to check if a table exists by its ID
 async function tableExists(req, res, next) {
   const table = await service.read(req.params.tableId);
 
@@ -24,6 +27,7 @@ async function tableExists(req, res, next) {
   });
 }
 
+// Middleware to check if a reservation exists by its ID
 async function reservationExists(req, res, next) {
   const reservation = await reservationService.read(
     req.body.data.reservation_id
@@ -40,13 +44,16 @@ async function reservationExists(req, res, next) {
   });
 }
 
+// Read a specific table by its ID
 async function read(req, res, next) {
   const { table: data } = res.locals;
   res.json({ data });
 }
 
+// Define valid properties for a table
 const VALID_PROPERTIES = ["table_name", "capacity"];
 
+// Middleware to check for valid properties in request body
 function hasValidProperties(req, res, next) {
   const { data = {} } = req.body;
 
@@ -64,6 +71,7 @@ function hasValidProperties(req, res, next) {
   next();
 }
 
+// Middleware to validate table properties like name length and capacity type
 function validateTableProps(req, res, next) {
   const { data = {} } = req.body;
 
@@ -84,12 +92,14 @@ function validateTableProps(req, res, next) {
   next();
 }
 
+// Create a new table
 async function create(req, res, next) {
   const data = await service.create(req.body.data);
 
   res.status(201).json({ data });
 }
 
+// Update an existing table
 async function update(req, res, next) {
   const table = {
     ...req.body.data,
@@ -100,6 +110,7 @@ async function update(req, res, next) {
   res.json({ data });
 }
 
+// Middleware to validate reservation_id property in request body
 function tableValidatorU(req, res, next) {
   const { data = {} } = req.body;
 
@@ -113,6 +124,7 @@ function tableValidatorU(req, res, next) {
   next();
 }
 
+// Middleware to check if the table is already occupied
 function isOccupied(req,res,next) {
 
   if (res.locals.table.reservation_id) {
@@ -125,6 +137,7 @@ function isOccupied(req,res,next) {
   next();
 }
 
+// Middleware to validate if table's capacity is sufficient for a reservation
 function valdiateCapacity(req,res,next) {
 
   if (res.locals.table.capacity < res.locals.reservation.people) {
@@ -137,12 +150,14 @@ function valdiateCapacity(req,res,next) {
   next();
 }
 
+// Delete an existing table
 async function destroy(req, res, next) {
   const { table } = res.locals;
   await service.delete(table.table_id);
   res.sendStatus(204);
 }
 
+// Exporting module's functions
 module.exports = {
   list: asyncErrorBoundary(list),
   read: [asyncErrorBoundary(tableExists), read],
