@@ -78,14 +78,14 @@ function validateTableProps(req, res, next) {
   if (data.table_name.length < 2) {
     return next({
       status: 400,
-      message: "table_name",
+      message: "table_name must be at least 2 characters long",
     });
   }
 
   if (typeof data.capacity !== "number") {
     return next({
       status: 400,
-      message: "capacity",
+      message: "capacity must be a number larger than 0",
     });
   }
 

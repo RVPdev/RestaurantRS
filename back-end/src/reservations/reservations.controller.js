@@ -22,7 +22,7 @@ async function list(req, res, next) {
   if (date) {
     // console.log(date, "``````````````````inside if");
     const data = await service.readDate(date);
-    console.log(data);
+    // console.log(data);
     res.json({ data: data });
   } else {
     // console.log(date, "~~~~~~~~~~~~~~~~~~~~~ inside else");
@@ -128,11 +128,11 @@ function validateReservationDate(req, res, next) {
   today.setHours(0, 0, 0, 0);
 
   if (reservationDate.getDay() === 1) { // 1 corresponds to Tuesday in JavaScript Date object
-    return next({ status: 400, message: 'closed' });
+    return next({ status: 400, message: 'Restaurant is closed' });
   }
 
   if (reservationDate < today) {
-    return next({ status: 400, message: 'future' });
+    return next({ status: 400, message: 'Make the reservation in the future' });
   }
 
   next();
