@@ -98,3 +98,15 @@ export async function createTable(reservation, signal) {
   };
   return await fetchJson(url, options, {});
 }
+
+/**
+ * Reads the reservation with the specified reservation_id
+ * @returns {Promise<reservation>}
+ *  a promise that resolves to the reservation with the specified reservation_id.
+ */
+export async function readReservation(reservation_id, signal) {
+  const url = `${API_BASE_URL}/reservations/${reservation_id}`;
+  return await fetchJson(url, { headers, signal }, {})
+    .then(formatReservationDate)
+    .then(formatReservationTime);
+}

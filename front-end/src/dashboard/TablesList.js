@@ -1,7 +1,7 @@
 import React from "react";
 
 function TablesList({ table }) {
-  console.log(table);
+//   console.log(table);
   return (
     <div className="col-md-3">
       <h4>{table.table_name}</h4>
