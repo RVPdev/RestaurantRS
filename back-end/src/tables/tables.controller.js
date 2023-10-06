@@ -137,6 +137,17 @@ function isOccupied(req,res,next) {
   next();
 }
 
+function isNotOccupied(req,res,next) {
+
+  if (!res.locals.table.reservation_id) {
+    return next({
+      status: 400,
+      message: "not occupied",
+    });
+  }
+
+  next();
+}
 // Middleware to validate if table's capacity is sufficient for a reservation
 function valdiateCapacity(req,res,next) {
 
@@ -154,7 +165,7 @@ function valdiateCapacity(req,res,next) {
 async function destroy(req, res, next) {
   const { table } = res.locals;
   await service.delete(table.table_id);
-  res.sendStatus(204);
+  res.sendStatus(200);
 }
 
 // Exporting module's functions
@@ -175,5 +186,5 @@ module.exports = {
     valdiateCapacity,
     asyncErrorBoundary(update),
   ],
-  delete: [asyncErrorBoundary(tableExists), asyncErrorBoundary(destroy)],
+  delete: [asyncErrorBoundary(tableExists), isNotOccupied, asyncErrorBoundary(destroy)],
 };

@@ -8,6 +8,9 @@ function TablesList({ table }) {
       <p data-table-id-status={`${table.table_id}`}>
         {table.reservation_id ? "Occupied" : "Free"}
       </p>
+      {table.reservation_id && (
+        <buton className="btn btn-danger">Finish</buton>
+      )}
     </div>
   );
 }
