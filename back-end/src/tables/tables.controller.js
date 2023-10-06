@@ -51,7 +51,7 @@ async function read(req, res, next) {
 }
 
 // Define valid properties for a table
-const VALID_PROPERTIES = ["table_name", "capacity"];
+const VALID_PROPERTIES = ["table_name", "capacity", "reservation_id"];
 
 // Middleware to check for valid properties in request body
 function hasValidProperties(req, res, next) {
@@ -165,7 +165,7 @@ function valdiateCapacity(req,res,next) {
 async function destroy(req, res, next) {
   const { table } = res.locals;
   await service.delete(table.table_id);
-  res.sendStatus(200);
+  res.status(200).json({});
 }
 
 // Exporting module's functions

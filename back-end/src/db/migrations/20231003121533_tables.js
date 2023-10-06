@@ -15,6 +15,7 @@ exports.up = function(knex) {
         // reservation_id column: This is a foreign key.
         table.integer("reservation_id").unsigned();
         table.foreign("reservation_id").references("reservation_id").inTable("reservations");
+        table.timestamps(true, true);
       });
 };
 

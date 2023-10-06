@@ -18,7 +18,9 @@ function Dashboard({ date }) {
   const [tables, setTables] = useState([]);
   const [tablesError, setTablesError] = useState(null);
 
-  useEffect(loadDashboard, [date]);
+  const [trigger, setTrigger] = useState(0)
+
+  useEffect(loadDashboard, [date, trigger]);
 
   function loadDashboard() {
     const abortController = new AbortController();
@@ -53,7 +55,7 @@ function Dashboard({ date }) {
 
       <div className="row g-3 mt-2">
         {tables.map((table, index) => (
-          <TablesList table={table} key={index} />
+          <TablesList table={table} key={index} setTrigger={setTrigger} />
         ))}
       </div>
       <ErrorAlert error={tablesError} />
