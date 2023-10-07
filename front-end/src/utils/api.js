@@ -123,11 +123,32 @@ export async function seatReservation(reservation_id, table_id, signal) {
 }
 
 export async function finishSeat(table_id, signal) {
-  console.log(table_id, "`````````````````````````````");
   const url = `${API_BASE_URL}/tables/${table_id}/seat`;
   const options = {
     method: "DELETE",
     signal,
   };
   return await fetchJson(url, options);
+}
+
+export async function changeStatusSeat (reservation_id, signal) {
+  const url = `${API_BASE_URL}/reservations/${reservation_id}/status`;
+  const options = {
+    method: "PUT",
+    headers,
+    body: JSON.stringify({ data: { status: "seated" } }),
+    signal,
+  };
+  return await fetchJson(url, options, {});
+}
+
+export async function changeStatusFinish (reservation_id, signal) {
+  const url = `${API_BASE_URL}/reservations/${reservation_id}/status`;
+  const options = {
+    method: "PUT",
+    headers,
+    body: JSON.stringify({ data: { status: "finished" } }),
+    signal,
+  };
+  return await fetchJson(url, options, {});
 }

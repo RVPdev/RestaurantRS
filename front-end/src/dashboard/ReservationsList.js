@@ -1,9 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom/cjs/react-router-dom.min";
+import { changeStatusSeat } from "../utils/api";
 
 function ReservationsList({ reservation }) {
-  console.log(reservation);
-
   const formatTime = (timeStr) => {
     const [hour, minute] = timeStr.split(":");
 
@@ -15,6 +14,14 @@ function ReservationsList({ reservation }) {
     return `${adjustedHour}:${minute} ${isPM ? "PM" : "AM"}`;
   };
 
+  const seatClick = async (event) => {
+    try {
+      await changeStatusSeat(reservation.reservation_id);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className="col-md-3">
       <h4>
@@ -23,13 +30,21 @@ function ReservationsList({ reservation }) {
       <p>time: {formatTime(reservation.reservation_time)}</p>
       <p>Mobile: {reservation.mobile_number}</p>
       <p>People: {reservation.people}</p>
-      <Link
-        className="btn btn-primary"
-        to={`/reservations/${reservation.reservation_id}/seat`}
-        href={`/reservations/${reservation.reservation_id}/seat`}
-      >
-        Seat
-      </Link>
+      <p data-reservation-id-status={`${reservation.reservation_id}`}>
+        Status:{" "}
+        {reservation.status.charAt(0).toUpperCase() +
+          reservation.status.slice(1)}
+      </p>
+      {reservation.status === "booked" && (
+        <Link
+          className="btn btn-primary"
+          to={`/reservations/${reservation.reservation_id}/seat`}
+          href={`/reservations/${reservation.reservation_id}/seat`}
+          onClick={seatClick}
+        >
+          Seat
+        </Link>
+      )}
     </div>
   );
 }
