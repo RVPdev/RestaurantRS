@@ -60,6 +60,7 @@ const VALID_PROPERTIES = [
   "reservation_date",
   "reservation_time",
   "people",
+  "status"
 ];
 
 function hasValidProperties(req, res, next) {
@@ -203,11 +204,11 @@ module.exports = {
   ],
   update: [
     asyncErrorBoundary(reservationExists),
-    hasValidProperties,
-    hasRequiredProperties,
-    validateDateTime,
-    validateReservationDate,
-    validateReservationTime,
+    // hasValidProperties,
+    // hasRequiredProperties,
+    // validateDateTime,
+    // validateReservationDate,
+    // validateReservationTime,
     asyncErrorBoundary(update),
   ],
   delete: [asyncErrorBoundary(reservationExists), asyncErrorBoundary(destroy)],

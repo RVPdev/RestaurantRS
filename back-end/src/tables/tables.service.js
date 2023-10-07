@@ -23,7 +23,9 @@ function update(table) {
 }
 
 function destroy(tableId) {
-  return knex("tables").where({ tableId }).del();
+  return knex("tables").where({ table_id: tableId }).update({
+    reservation_id: null,
+  });
 }
 
 module.exports = {

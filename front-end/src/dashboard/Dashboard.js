@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { listReservations } from "../utils/api";
+import { listReservations, listTables } from "../utils/api";
 import ErrorAlert from "../layout/ErrorAlert";
 import NavigationDate from "./NavigationDate";
+import ReservationsList from "./ReservationsList";
+import TablesList from "./TablesList";
 
 /**
  * Defines the dashboard page.
@@ -13,14 +15,24 @@ function Dashboard({ date }) {
   const [reservations, setReservations] = useState([]);
   const [reservationsError, setReservationsError] = useState(null);
 
-  useEffect(loadDashboard, [date]);
+  const [tables, setTables] = useState([]);
+  const [tablesError, setTablesError] = useState(null);
+
+  const [trigger, setTrigger] = useState(0)
+
+  useEffect(loadDashboard, [date, trigger]);
 
   function loadDashboard() {
     const abortController = new AbortController();
     setReservationsError(null);
+    setTablesError(null);
+
     listReservations({ date }, abortController.signal)
       .then(setReservations)
       .catch(setReservationsError);
+
+    listTables(abortController.signal).then(setTables).catch(setTablesError);
+
     return () => abortController.abort();
   }
 
@@ -34,7 +46,19 @@ function Dashboard({ date }) {
         <NavigationDate date={date} />
       </div>
       <ErrorAlert error={reservationsError} />
-      {JSON.stringify(reservations)}
+
+      <div className="row g-3 mt-2">
+        {reservations.map((reservation, index) => (
+          <ReservationsList reservation={reservation} key={index} />
+        ))}
+      </div>
+
+      <div className="row g-3 mt-2">
+        {tables.map((table, index) => (
+          <TablesList table={table} key={index} setTrigger={setTrigger} />
+        ))}
+      </div>
+      <ErrorAlert error={tablesError} />
     </main>
   );
 }
