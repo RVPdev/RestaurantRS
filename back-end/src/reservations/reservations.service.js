@@ -31,10 +31,10 @@ function create(reservation) {
 // updates an existing reservation
 function update(reservation) {
   return knex("reservations")
-    .select("*")
     .where({ reservation_id: reservation.reservation_id })
-    .update(reservation, "*");
+    .update({status: reservation.status});
 }
+
 
 // destroy an specific reservation
 function destroy(reservationId) {
