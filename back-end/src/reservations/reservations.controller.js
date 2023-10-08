@@ -20,12 +20,9 @@ async function list(req, res, next) {
   const { date } = req.query;
 
   if (date) {
-    // console.log(date, "``````````````````inside if");
     const data = await service.readDate(date);
-    // console.log(data);
     res.json({ data: data });
   } else {
-    // console.log(date, "~~~~~~~~~~~~~~~~~~~~~ inside else");
     const data = await service.list();
     res.json({ data: data });
   }
@@ -142,7 +139,6 @@ function updateFinish(req, res, next) {
   const data = res.locals.reservation;
 
   if (data.status === "finished") {
-    console.log(data.status, "inside");
     return next({
       status: 400,
       message: "cannot be updated when reservation is finished",
