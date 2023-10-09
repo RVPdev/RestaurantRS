@@ -17,10 +17,13 @@ const hasRequiredProperties = hasProperties(
 
 // list function form controller and query selector
 async function list(req, res, next) {
-  const { date } = req.query;
+  const { date, mobile_number } = req.query;
 
   if (date) {
     const data = await service.readDate(date);
+    res.json({ data: data });
+  } else if (mobile_number) {
+    const data = await service.search(mobile_number);
     res.json({ data: data });
   } else {
     const data = await service.list();

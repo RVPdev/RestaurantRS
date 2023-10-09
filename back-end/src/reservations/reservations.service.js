@@ -18,7 +18,7 @@ function readDate(reservationDate) {
     .select("*")
     .where({ reservation_date: reservationDate })
     .whereNot({ status: "finished" })
-    .orderBy('reservation_time', "asc");
+    .orderBy("reservation_time", "asc");
 }
 
 // create a new reservation
@@ -33,13 +33,21 @@ function create(reservation) {
 function update(reservation) {
   return knex("reservations")
     .where({ reservation_id: reservation.reservation_id })
-    .update({status: reservation.status});
+    .update({ status: reservation.status });
 }
-
 
 // destroy an specific reservation
 function destroy(reservationId) {
   return knex("reservations").where({ reservationId }).del();
+}
+
+function search(mobile_number) {
+  return knex("reservations")
+    .whereRaw(
+      "translate(mobile_number, '() -', '') like ?",
+      `%${mobile_number.replace(/\D/g, "")}%`
+    )
+    .orderBy("reservation_date");
 }
 
 module.exports = {
@@ -49,4 +57,5 @@ module.exports = {
   update,
   delete: destroy,
   readDate,
+  search
 };
