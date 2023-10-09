@@ -1,6 +1,5 @@
 import React from "react";
 import { Link } from "react-router-dom/cjs/react-router-dom.min";
-import { changeStatusSeat } from "../utils/api";
 
 function ReservationsList({ reservation }) {
   const formatTime = (timeStr) => {
@@ -12,14 +11,6 @@ function ReservationsList({ reservation }) {
 
     // Return the new format
     return `${adjustedHour}:${minute} ${isPM ? "PM" : "AM"}`;
-  };
-
-  const seatClick = async (event) => {
-    try {
-      await changeStatusSeat(reservation.reservation_id);
-    } catch (error) {
-      console.log(error);
-    }
   };
 
   return (
@@ -40,7 +31,6 @@ function ReservationsList({ reservation }) {
           className="btn btn-primary"
           to={`/reservations/${reservation.reservation_id}/seat`}
           href={`/reservations/${reservation.reservation_id}/seat`}
-          onClick={seatClick}
         >
           Seat
         </Link>
