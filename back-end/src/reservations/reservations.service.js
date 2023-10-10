@@ -1,3 +1,4 @@
+const { response } = require("../app");
 const knex = require("../db/connection");
 
 // get all reservations from db
@@ -36,6 +37,14 @@ function update(reservation) {
     .update({ status: reservation.status });
 }
 
+function updateRes(updatedReservation) {
+  return knex("reservations")
+    .select("*")
+    .where({ reservation_id: updatedReservation.reservation_id })
+    .update(updatedReservation, "*")
+    .then((response) => response[0]);
+}
+
 // destroy an specific reservation
 function destroy(reservationId) {
   return knex("reservations").where({ reservationId }).del();
@@ -57,5 +66,6 @@ module.exports = {
   update,
   delete: destroy,
   readDate,
-  search
+  search,
+  updateRes,
 };

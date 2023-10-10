@@ -87,6 +87,43 @@ function hasValidProperties(req, res, next) {
   next();
 }
 
+const VALID_PROPERTIES_TWO = [
+  "first_name",
+  "last_name",
+  "mobile_number",
+  "reservation_date",
+  "reservation_time",
+  "people",
+  "status",
+  "reservation_id",
+  "created_at",
+  "updated_at",
+];
+
+function hasValidPropertiesTwo(req, res, next) {
+  const { data = {} } = req.body;
+
+  const invalidFields = Object.keys(data).filter(
+    (field) => !VALID_PROPERTIES_TWO.includes(field)
+  );
+
+  if (invalidFields.length) {
+    return next({
+      status: 400,
+      message: `Invalid field(s): ${invalidFields.join(", ")}`,
+    });
+  }
+
+  if (typeof data.people !== "number" || data.people <= 0) {
+    return next({
+      status: 400,
+      message: "'people' field must be a number greater than 0",
+    });
+  }
+
+  next();
+}
+
 function validateDateTime(req, res, next) {
   const { data = {} } = req.body;
 
@@ -128,7 +165,7 @@ function validateStatus(req, res, next) {
 
 function rejectForeingStatus(req, res, next) {
   const { data = {} } = req.body;
-  const validStatus = ["booked", "seated", "finished"];
+  const validStatus = ["booked", "seated", "finished", "cancelled"];
   if (!validStatus.includes(data.status)) {
     return next({
       status: 400,
@@ -223,8 +260,20 @@ async function update(req, res, next) {
     status: req.body.data.status,
   };
 
+  console.log(reservation,"~~~~~~~");
   await service.update(reservation);
   res.status(200).json({ data: reservation });
+}
+
+async function updateRes(req, res) {
+  const { reservationId } = req.params;
+  const updatedReservation = {
+    ...req.body.data,
+    reservation_id: reservationId,
+  };
+
+  const data = await service.updateRes(updatedReservation);
+  res.json({ data });
 }
 
 // destroy controller
@@ -251,6 +300,15 @@ module.exports = {
     rejectForeingStatus,
     updateFinish,
     asyncErrorBoundary(update),
+  ],
+  updateRes: [
+    asyncErrorBoundary(reservationExists),
+    hasValidPropertiesTwo,
+    hasRequiredProperties,
+    validateDateTime,
+    validateReservationDate,
+    validateReservationTime,
+    asyncErrorBoundary(updateRes),
   ],
   delete: [asyncErrorBoundary(reservationExists), asyncErrorBoundary(destroy)],
 };
