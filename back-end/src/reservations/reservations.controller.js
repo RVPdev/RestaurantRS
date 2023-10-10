@@ -260,7 +260,6 @@ async function update(req, res, next) {
     status: req.body.data.status,
   };
 
-  console.log(reservation,"~~~~~~~");
   await service.update(reservation);
   res.status(200).json({ data: reservation });
 }

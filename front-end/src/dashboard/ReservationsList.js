@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom/cjs/react-router-dom.min";
+import { changeStatusCancelled } from "../utils/api";
 
 function ReservationsList({ reservation }) {
   const formatTime = (timeStr) => {
@@ -13,8 +14,28 @@ function ReservationsList({ reservation }) {
     return `${adjustedHour}:${minute} ${isPM ? "PM" : "AM"}`;
   };
 
+  const handleClick = async (event) => {
+    const windowConfirm = window.confirm(
+      "Do you want to cancel this reservation? This cannot be undone."
+    );
+
+    if(windowConfirm) {
+      await changeStatusCancelled(reservation.reservation_id).catch()
+      window.location.reload()
+    }
+  };
+
   return (
-    <div className="col-md-3">
+    <div className="col-md-3 text-center ">
+      {reservation.status === "booked" && (
+        <Link
+          className="btn btn-primary col"
+          to={`/reservations/${reservation.reservation_id}/seat`}
+          href={`/reservations/${reservation.reservation_id}/seat`}
+        >
+          Seat
+        </Link>
+      )}
       <h4>
         {reservation.first_name} {reservation.last_name}
       </h4>
@@ -26,14 +47,24 @@ function ReservationsList({ reservation }) {
         {reservation.status.charAt(0).toUpperCase() +
           reservation.status.slice(1)}
       </p>
+
       {reservation.status === "booked" && (
-        <Link
-          className="btn btn-primary"
-          to={`/reservations/${reservation.reservation_id}/seat`}
-          href={`/reservations/${reservation.reservation_id}/seat`}
-        >
-          Seat
-        </Link>
+        <div className="row container">
+          <Link
+            className="btn btn-success col"
+            to={`/reservations/${reservation.reservation_id}/edit`}
+            href={`/reservations/${reservation.reservation_id}/edit`}
+          >
+            Edit
+          </Link>
+          <button
+            className="btn btn-danger col ms-1"
+            data-reservation-id-cancel={reservation.reservation_id}
+            onClick={handleClick}
+          >
+            Cancel
+          </button>
+        </div>
       )}
     </div>
   );

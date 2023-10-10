@@ -15,7 +15,6 @@ function NewSearch() {
   useEffect(loadReservation, [mobile]);
 
   function loadReservation() {
-    console.log("Load Reservation ~~~~~~~~~~~~~~~~~~~~");
     const abortController = new AbortController();
     setReservationsError(null);
 
