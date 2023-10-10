@@ -176,7 +176,7 @@ function valdiateCapacity(req, res, next) {
 async function destroy(req, res, next) {
   const { table } = res.locals;
 
-  if(req.body.data.reservation_id) {
+  if(req.body.data) {
     const reservation = {
       reservation_id: req.body.data.reservation_id,
       status: "finished",
