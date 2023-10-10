@@ -200,7 +200,7 @@ function validateReservationDate(req, res, next) {
   // Set the time of today to 00:00:00 to only compare date, not time.
   today.setHours(0, 0, 0, 0);
 
-  if (reservationDate.getDay() === 1) {
+  if (reservationDate.getDay() === 2) {
     // 1 corresponds to Tuesday in JavaScript Date object
     return next({ status: 400, message: "Restaurant is closed" });
   }
