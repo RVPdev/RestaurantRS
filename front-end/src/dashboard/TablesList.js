@@ -12,12 +12,11 @@ function TablesList({ table, setTrigger }) {
     );
     if (windowConfirm === true) {
       try {
-        await finishSeat(table.table_id);
-
+        await finishSeat(table.table_id, table.reservation_id);
       } catch (error) {
         setSeatError(error);
       }
-      setTrigger(prev => prev + 1);
+      setTrigger((prev) => prev + 1);
     }
     console.log(seatError);
   };

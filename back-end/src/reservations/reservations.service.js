@@ -1,3 +1,4 @@
+const { response } = require("../app");
 const knex = require("../db/connection");
 
 // get all reservations from db
@@ -17,7 +18,8 @@ function readDate(reservationDate) {
   return knex("reservations")
     .select("*")
     .where({ reservation_date: reservationDate })
-    .orderBy('reservation_time', "asc");
+    .whereNot({ status: "finished" })
+    .orderBy("reservation_time", "asc");
 }
 
 // create a new reservation
@@ -31,14 +33,30 @@ function create(reservation) {
 // updates an existing reservation
 function update(reservation) {
   return knex("reservations")
-    .select("*")
     .where({ reservation_id: reservation.reservation_id })
-    .update(reservation, "*");
+    .update({ status: reservation.status });
+}
+
+function updateRes(updatedReservation) {
+  return knex("reservations")
+    .select("*")
+    .where({ reservation_id: updatedReservation.reservation_id })
+    .update(updatedReservation, "*")
+    .then((response) => response[0]);
 }
 
 // destroy an specific reservation
 function destroy(reservationId) {
   return knex("reservations").where({ reservationId }).del();
+}
+
+function search(mobile_number) {
+  return knex("reservations")
+    .whereRaw(
+      "translate(mobile_number, '() -', '') like ?",
+      `%${mobile_number.replace(/\D/g, "")}%`
+    )
+    .orderBy("reservation_date");
 }
 
 module.exports = {
@@ -48,4 +66,6 @@ module.exports = {
   update,
   delete: destroy,
   readDate,
+  search,
+  updateRes,
 };

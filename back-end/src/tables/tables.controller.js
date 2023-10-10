@@ -101,6 +101,20 @@ async function create(req, res, next) {
 
 // Update an existing table
 async function update(req, res, next) {
+  const reservation = {
+    reservation_id: req.body.data.reservation_id,
+    status: "seated",
+  };
+
+  if (res.locals.reservation && res.locals.reservation.status === "booked") {
+    await reservationService.update(reservation);
+  } else if (res.locals.reservation.status === "seated") {
+    return next({
+      status: 400,
+      message: "reservation is already 'seated'",
+    });
+  }
+
   const table = {
     ...req.body.data,
     table_id: res.locals.table.table_id,
@@ -125,8 +139,7 @@ function tableValidatorU(req, res, next) {
 }
 
 // Middleware to check if the table is already occupied
-function isOccupied(req,res,next) {
-
+function isOccupied(req, res, next) {
   if (res.locals.table.reservation_id) {
     return next({
       status: 400,
@@ -137,8 +150,7 @@ function isOccupied(req,res,next) {
   next();
 }
 
-function isNotOccupied(req,res,next) {
-
+function isNotOccupied(req, res, next) {
   if (!res.locals.table.reservation_id) {
     return next({
       status: 400,
@@ -149,8 +161,7 @@ function isNotOccupied(req,res,next) {
   next();
 }
 // Middleware to validate if table's capacity is sufficient for a reservation
-function valdiateCapacity(req,res,next) {
-
+function valdiateCapacity(req, res, next) {
   if (res.locals.table.capacity < res.locals.reservation.people) {
     return next({
       status: 400,
@@ -164,6 +175,15 @@ function valdiateCapacity(req,res,next) {
 // Delete an existing table
 async function destroy(req, res, next) {
   const { table } = res.locals;
+
+  if(req.body.data.reservation_id) {
+    const reservation = {
+      reservation_id: req.body.data.reservation_id,
+      status: "finished",
+    };
+    await reservationService.update(reservation);
+  }
+
   await service.delete(table.table_id);
   res.status(200).json({});
 }
@@ -186,5 +206,9 @@ module.exports = {
     valdiateCapacity,
     asyncErrorBoundary(update),
   ],
-  delete: [asyncErrorBoundary(tableExists), isNotOccupied, asyncErrorBoundary(destroy)],
+  delete: [
+    asyncErrorBoundary(tableExists),
+    isNotOccupied,
+    asyncErrorBoundary(destroy),
+  ],
 };

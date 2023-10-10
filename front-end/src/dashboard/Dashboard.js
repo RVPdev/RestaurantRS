@@ -22,6 +22,7 @@ function Dashboard({ date }) {
 
   useEffect(loadDashboard, [date, trigger]);
 
+
   function loadDashboard() {
     const abortController = new AbortController();
     setReservationsError(null);
