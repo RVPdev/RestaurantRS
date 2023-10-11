@@ -202,7 +202,7 @@ function validateReservationDate(req, res, next) {
   // Set the time of today to 00:00:00 to only compare date, not time.
   today.setHours(0, 0, 0, 0);
 
-  if (reservationDate.getDay() === 2) {
+  if (reservationDate.getUTCDay() === 2) {
     // 2 corresponds to Tuesday in JavaScript Date object
     return next({ status: 400, message: "Restaurant is closed" });
   }
@@ -250,7 +250,6 @@ function validateReservationTime(req, res, next) {
 
 function validatePhoneNumber(req, res, next) {
   const { data = {} } = req.body;
-  const phoneNumberRegex = /^\d{3}-\d{3}-\d{4}$/; // This regex matches phone numbers in the format XXX-XXX-XXXX
 
   if (!data.mobile_number) {
       return next({
@@ -265,13 +264,6 @@ function validatePhoneNumber(req, res, next) {
         message: "Phone number should not contain any letters",
     });
 }
-
-  if (!phoneNumberRegex.test(data.mobile_number)) {
-      return next({
-          status: 400,
-          message: "Phone number must be in the format XXX-XXX-XXXX and contain no letters",
-      });
-  }
 
   next();
 }
